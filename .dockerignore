@@ -1,0 +1,7 @@
+.vscode
+.gitignore
+README.md
+/dist
+/node_modules
+/test
+/coverage
