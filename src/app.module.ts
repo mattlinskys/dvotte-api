@@ -1,27 +1,33 @@
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { WidgetsModule } from 'widgets/widgets.module';
+import { ProjectsModule } from 'projects/projects.module';
+import { validate } from 'env.validation';
+import { AuthModule } from 'auth/auth.module';
+
 import mongoConfig from 'config/mongo.config';
-import { validate } from './env.validation';
+import redisConfig from 'config/redis.config';
+import authConfig from 'config/auth.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      load: [mongoConfig],
+      load: [mongoConfig, redisConfig, authConfig],
       validate,
+      isGlobal: true,
     }),
     MikroOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        entities: ['./dist/widgets/entities'],
+        entities: ['./dist/projects/entities'],
         type: 'mongo',
         dbName: configService.get('mongo.dbName'),
         clientUrl: configService.get('mongo.url'),
       }),
+      inject: [ConfigService],
+      imports: [ConfigModule],
     }),
-    WidgetsModule,
+    ProjectsModule,
+    AuthModule,
   ],
 })
 export class AppModule {}

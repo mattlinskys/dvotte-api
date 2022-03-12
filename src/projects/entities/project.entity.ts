@@ -8,7 +8,7 @@ import {
   SerializedPrimaryKey,
 } from '@mikro-orm/core';
 import { ObjectId } from '@mikro-orm/mongodb';
-import { WidgetVariant } from 'widgets/enums/widgetVariant.enum';
+import { WidgetVariant } from 'projects/enums/widgetVariant.enum';
 
 @Embeddable()
 export class ContractPair {
@@ -20,7 +20,7 @@ export class ContractPair {
 }
 
 @Entity()
-export class Widget {
+export class Project {
   @PrimaryKey()
   _id: ObjectId;
 
@@ -34,7 +34,7 @@ export class Widget {
   contractPairs: ContractPair[] = [];
 
   @Enum(() => WidgetVariant)
-  variant: WidgetVariant = WidgetVariant.Card;
+  widgetVariant: WidgetVariant = WidgetVariant.Card;
 
   @Property()
   color: string;

@@ -19,6 +19,12 @@ class EnvironmentVariables {
 
   @IsString()
   MONGO_URL: string;
+
+  @IsString()
+  ACCESS_JWT_SECRET: string;
+
+  @IsString()
+  NONCE_JWT_SECRET: string;
 }
 
 export const validate = (config: Record<string, unknown>) => {
