@@ -13,10 +13,8 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext) {
     const req = context.switchToHttp().getRequest<Request>();
-    const accessToken = (req.headers['authorization'] || '').replace(
-      'Bearer ',
-      '',
-    );
+    const accessToken =
+      (req.headers['authorization'] ?? '').split(' ')[1] ?? '';
 
     try {
       req.accessPayload = await this.jwtService.verifyAsync<AccessTokenPayload>(

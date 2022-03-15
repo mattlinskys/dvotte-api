@@ -1,44 +1,61 @@
 import {
-  Embeddable,
-  Embedded,
+  Collection,
   Entity,
-  Enum,
+  EntityRepositoryType,
+  ManyToMany,
   PrimaryKey,
   Property,
   SerializedPrimaryKey,
+  Unique,
 } from '@mikro-orm/core';
 import { ObjectId } from '@mikro-orm/mongodb';
-import { WidgetVariant } from 'projects/enums/widgetVariant.enum';
+import { Expose, Transform, Type } from 'class-transformer';
+import { Contract } from 'contracts/entities/contract.entity';
+import { ProjectRepository } from 'projects/projects.repository';
 
-@Embeddable()
-export class ContractPair {
-  @Property()
-  contractAddress: string;
-
-  @Property()
-  chainId: number;
-}
-
-@Entity()
+@Entity({ customRepository: () => ProjectRepository })
 export class Project {
+  [EntityRepositoryType]?: ProjectRepository;
+
   @PrimaryKey()
   _id: ObjectId;
 
+  @Expose()
   @SerializedPrimaryKey()
   id: string;
 
+  @Expose()
+  @Property()
+  title: string;
+
+  @Expose()
+  @Unique()
+  @Property()
+  slug: string;
+
+  @Expose()
   @Property()
   ownerAddress: string;
 
-  @Embedded(() => ContractPair, { array: true })
-  contractPairs: ContractPair[] = [];
+  @Expose()
+  @Type(() => Contract)
+  @Transform(({ value }) => value.getItems())
+  @ManyToMany(() => Contract)
+  contracts = new Collection<Contract>(this);
 
-  @Enum(() => WidgetVariant)
-  widgetVariant: WidgetVariant = WidgetVariant.Card;
-
+  @Expose()
   @Property()
   color: string;
 
+  @Expose()
   @Property({ nullable: true })
   description?: string;
+
+  @Expose()
+  @Property({ nullable: true })
+  content?: string;
+
+  @Expose()
+  @Property()
+  createdAt: Date = new Date();
 }

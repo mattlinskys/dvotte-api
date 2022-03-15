@@ -3,13 +3,14 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   UseInterceptors,
   UploadedFile,
   BadRequestException,
   UseGuards,
+  NotFoundException,
+  Put,
 } from '@nestjs/common';
 import { ProjectsService } from 'projects/projects.service';
 import { CreateProjectDto } from 'projects/dto/create-project.dto';
@@ -38,16 +39,36 @@ export class ProjectsController {
   @ApiQuery({ name: 'ownerAddress' })
   @ApiQuery({ name: 'skip', type: 'number' })
   @ApiQuery({ name: 'take', type: 'number' })
-  findAll() {
-    return this.projectsService.findAll();
+  findMany() {
+    return this.projectsService.findMany();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.projectsService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    const project = await this.projectsService.findOne(id, {
+      populate: ['contracts'],
+    });
+    if (!project) {
+      throw new NotFoundException();
+    }
+
+    return project;
   }
 
-  @Patch(':id')
+  @Get(':slug/slug')
+  async findBySlug(@Param('slug') slug: string) {
+    const project = await this.projectsService.findBySlug(slug, {
+      populate: ['contracts'],
+    });
+    if (!project) {
+      throw new NotFoundException();
+    }
+
+    return project;
+  }
+
+  @Put(':id')
+  // TODO: Access
   update(@Param('id') id: string, @Body() updateProjectDto: UpdateProjectDto) {
     return this.projectsService.update(id, updateProjectDto);
   }

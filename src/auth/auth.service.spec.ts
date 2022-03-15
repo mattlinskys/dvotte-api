@@ -17,7 +17,6 @@ describe('AuthService', () => {
   });
 
   it('should generate random nonce', () => {
-    console.log(service.nonceJwtSecret);
     expect(service.getNonce()).not.toEqual(service.getNonce());
   });
 });

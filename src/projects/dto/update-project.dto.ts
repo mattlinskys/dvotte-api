@@ -1,4 +1,7 @@
-import { PartialType } from '@nestjs/mapped-types';
+import { OmitType } from '@nestjs/swagger';
 import { CreateProjectDto } from 'projects/dto/create-project.dto';
 
-export class UpdateProjectDto extends PartialType(CreateProjectDto) {}
+export class UpdateProjectDto extends OmitType(CreateProjectDto, [
+  'slug',
+  'contractIds',
+] as const) {}

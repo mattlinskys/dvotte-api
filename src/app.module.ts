@@ -1,9 +1,10 @@
-import { MikroOrmModule } from '@mikro-orm/nestjs';
-import { Module } from '@nestjs/common';
+import { MikroOrmMiddleware, MikroOrmModule } from '@mikro-orm/nestjs';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ProjectsModule } from 'projects/projects.module';
 import { validate } from 'env.validation';
 import { AuthModule } from 'auth/auth.module';
+import { ContractsModule } from './contracts/contracts.module';
 
 import mongoConfig from 'config/mongo.config';
 import redisConfig from 'config/redis.config';
@@ -18,16 +19,22 @@ import authConfig from 'config/auth.config';
     }),
     MikroOrmModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
-        entities: ['./dist/projects/entities'],
+        entities: ['./dist/projects/entities', './dist/contracts/entities'],
         type: 'mongo',
         dbName: configService.get('mongo.dbName'),
         clientUrl: configService.get('mongo.url'),
+        ensureIndexes: true,
       }),
       inject: [ConfigService],
       imports: [ConfigModule],
     }),
     ProjectsModule,
     AuthModule,
+    ContractsModule,
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(MikroOrmMiddleware).forRoutes('*');
+  }
+}

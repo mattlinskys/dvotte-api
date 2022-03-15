@@ -1,10 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsEthereumAddress, IsString } from 'class-validator';
+import { IsEthereumAddress } from 'class-validator';
 
 export class GenerateNonceDto {
   @ApiProperty()
-  @IsString()
   @IsEthereumAddress()
   address: string;
 }
