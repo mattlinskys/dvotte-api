@@ -12,6 +12,9 @@ import { JwtModule } from '@nestjs/jwt';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Project } from 'projects/entities/project.entity';
 import { ProjectMiddleware } from 'projects/middleware/project.middleware';
+import { S3ManagerModule } from 's3-manager/s3-manager.module';
+import { BullModule } from '@nestjs/bull';
+import { CLEANER_QUEUE_NAME } from 'cleaner/cleaner.constants';
 
 @Module({
   imports: [
@@ -20,7 +23,11 @@ import { ProjectMiddleware } from 'projects/middleware/project.middleware';
       dest: tempDir,
       preservePath: true,
     }),
+    BullModule.registerQueue({
+      name: CLEANER_QUEUE_NAME,
+    }),
     MikroOrmModule.forFeature([Project]),
+    S3ManagerModule,
   ],
   controllers: [ProjectsController],
   providers: [ProjectsService],

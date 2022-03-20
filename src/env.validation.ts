@@ -1,5 +1,11 @@
 import { plainToClass } from 'class-transformer';
-import { IsEnum, IsNumber, IsString, validateSync } from 'class-validator';
+import {
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  validateSync,
+} from 'class-validator';
 
 enum Environment {
   Development = 'development',
@@ -21,10 +27,29 @@ class EnvironmentVariables {
   MONGO_URL: string;
 
   @IsString()
+  REDIS_HOST: string;
+
+  @IsString()
+  REDIS_PORT: string;
+
+  @IsString()
+  @IsOptional()
+  REDIS_PASSWORD: string;
+
+  @IsString()
   ACCESS_JWT_SECRET: string;
 
   @IsString()
   NONCE_JWT_SECRET: string;
+
+  @IsString()
+  AWS_ACCESS_KEY: string;
+
+  @IsString()
+  AWS_SECRET_ACCESS_KEY: string;
+
+  @IsString()
+  AWS_STATIC_FILES_BUCKET: string;
 }
 
 export const validate = (config: Record<string, unknown>) => {

@@ -28,6 +28,7 @@ import { AccessPayload } from 'auth/decorators/accessPayload.decorator';
 import { AccessTokenPayload } from 'auth/auth.types';
 import { ProjectParam } from 'projects/decorators/project.decorator';
 import { Project } from 'projects/entities/project.entity';
+import { mimetypesFileFilter } from 'utils/multer.utils';
 
 @Controller('projects')
 export class ProjectsController {
@@ -89,21 +90,22 @@ export class ProjectsController {
       type: 'object',
       properties: {
         banner: {
-          type: 'string',
+          type: 'file',
           format: 'binary',
         },
       },
     },
   })
   // TODO: Access Guard
+  // TODO: Remove file after
   @UseInterceptors(
     FileInterceptor('banner', {
+      fileFilter: mimetypesFileFilter('image/jpeg', 'image/png'),
       limits: {
         fieldSize: 0,
         fields: 0,
         fileSize: 5 * 1024 * 1024,
         files: 1,
-        headerPairs: 1,
       },
     }),
   )
@@ -122,6 +124,6 @@ export class ProjectsController {
   @ApiParam({ name: 'id' })
   // TODO: access Guard
   remove(@ProjectParam() project: Project) {
-    return this.projectsService.remove(project.id);
+    return this.projectsService.remove(project);
   }
 }
