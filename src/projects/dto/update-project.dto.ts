@@ -3,5 +3,4 @@ import { CreateProjectDto } from 'projects/dto/create-project.dto';
 
 export class UpdateProjectDto extends OmitType(CreateProjectDto, [
   'slug',
-  'contractIds',
 ] as const) {}

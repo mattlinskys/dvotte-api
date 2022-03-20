@@ -5,7 +5,7 @@ import {
   HttpCode,
   Post,
 } from '@nestjs/common';
-import { ApiOkResponse } from '@nestjs/swagger';
+import { ApiOkResponse, ApiParam } from '@nestjs/swagger';
 import { AuthService } from 'auth/auth.service';
 import { plainToInstance } from 'class-transformer';
 import {
@@ -21,8 +21,8 @@ import {
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @ApiOkResponse({ type: GenerateNonceResponse })
   @Post('nonce')
+  @ApiOkResponse({ type: GenerateNonceResponse })
   @HttpCode(200)
   async generateNonce(@Body() generateNonceDto: GenerateNonceDto) {
     return plainToInstance(GenerateNonceResponse, {
@@ -32,8 +32,8 @@ export class AuthController {
     });
   }
 
-  @ApiOkResponse({ type: VerifySignatureResponse })
   @Post('signature')
+  @ApiOkResponse({ type: VerifySignatureResponse })
   @HttpCode(200)
   async verifySignature(@Body() verifySignarureDto: VerifySignatureDto) {
     const {

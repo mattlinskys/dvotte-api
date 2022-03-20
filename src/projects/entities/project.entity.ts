@@ -1,17 +1,40 @@
 import {
-  Collection,
+  Embeddable,
+  Embedded,
   Entity,
   EntityRepositoryType,
-  ManyToMany,
+  Enum,
   PrimaryKey,
   Property,
   SerializedPrimaryKey,
   Unique,
 } from '@mikro-orm/core';
 import { ObjectId } from '@mikro-orm/mongodb';
-import { Expose, Transform, Type } from 'class-transformer';
-import { Contract } from 'contracts/entities/contract.entity';
+import { Expose } from 'class-transformer';
+import { SocialType } from 'projects/enums/socialType.enum';
 import { ProjectRepository } from 'projects/projects.repository';
+
+@Embeddable()
+export class Contract {
+  @Expose()
+  @Property()
+  address: string;
+
+  @Expose()
+  @Property()
+  chainId: number;
+}
+
+@Embeddable()
+export class Social {
+  @Expose()
+  @Enum(() => SocialType)
+  type: SocialType;
+
+  @Expose()
+  @Property()
+  url: string;
+}
 
 @Entity({ customRepository: () => ProjectRepository })
 export class Project {
@@ -38,14 +61,16 @@ export class Project {
   ownerAddress: string;
 
   @Expose()
-  @Type(() => Contract)
-  @Transform(({ value }) => value.getItems())
-  @ManyToMany(() => Contract)
-  contracts = new Collection<Contract>(this);
+  @Embedded(() => Contract, { array: true })
+  contracts: Contract[] = [];
 
   @Expose()
   @Property()
   color: string;
+
+  @Expose()
+  @Property({ nullable: true })
+  bannerUrl?: string;
 
   @Expose()
   @Property({ nullable: true })
@@ -54,6 +79,10 @@ export class Project {
   @Expose()
   @Property({ nullable: true })
   content?: string;
+
+  @Expose()
+  @Embedded(() => Social, { array: true })
+  socials: Social[] = [];
 
   @Expose()
   @Property()

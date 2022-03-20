@@ -16,17 +16,25 @@ import { ProjectsService } from 'projects/projects.service';
 import { CreateProjectDto } from 'projects/dto/create-project.dto';
 import { UpdateProjectDto } from 'projects/dto/update-project.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiParam,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { AuthGuard } from 'auth/guards/auth.guard';
 import { AccessPayload } from 'auth/decorators/accessPayload.decorator';
 import { AccessTokenPayload } from 'auth/auth.types';
+import { ProjectParam } from 'projects/decorators/project.decorator';
+import { Project } from 'projects/entities/project.entity';
 
 @Controller('projects')
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
-  @ApiBearerAuth()
   @Post()
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   create(
     @Body() createProjectDto: CreateProjectDto,
@@ -44,22 +52,16 @@ export class ProjectsController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    const project = await this.projectsService.findOne(id, {
-      populate: ['contracts'],
-    });
-    if (!project) {
-      throw new NotFoundException();
-    }
-
+  @ApiParam({ name: 'id' })
+  async findOne(@ProjectParam() project: Project) {
+    console.log(project);
     return project;
   }
 
   @Get(':slug/slug')
+  @ApiParam({ name: 'slug' })
   async findBySlug(@Param('slug') slug: string) {
-    const project = await this.projectsService.findBySlug(slug, {
-      populate: ['contracts'],
-    });
+    const project = await this.projectsService.findBySlug(slug);
     if (!project) {
       throw new NotFoundException();
     }
@@ -68,25 +70,58 @@ export class ProjectsController {
   }
 
   @Put(':id')
-  // TODO: Access
-  update(@Param('id') id: string, @Body() updateProjectDto: UpdateProjectDto) {
-    return this.projectsService.update(id, updateProjectDto);
+  @ApiBearerAuth()
+  @ApiParam({ name: 'id' })
+  // TODO: Access Guard
+  update(
+    @ProjectParam() project: Project,
+    @Body() updateProjectDto: UpdateProjectDto,
+  ) {
+    return this.projectsService.update(project, updateProjectDto);
   }
 
   @Post(':id/upload-banner')
-  @UseInterceptors(FileInterceptor('banner'))
+  @ApiBearerAuth()
+  @ApiParam({ name: 'id' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        banner: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  // TODO: Access Guard
+  @UseInterceptors(
+    FileInterceptor('banner', {
+      limits: {
+        fieldSize: 0,
+        fields: 0,
+        fileSize: 5 * 1024 * 1024,
+        files: 1,
+        headerPairs: 1,
+      },
+    }),
+  )
   uploadBanner(
-    @Param('id') id: string,
+    @ProjectParam() project: Project,
     @UploadedFile() file?: Express.Multer.File,
   ) {
     if (!file) {
       throw new BadRequestException();
     }
-    return this.projectsService.uploadBanner(id, file);
+    return this.projectsService.uploadBanner(project, file);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.projectsService.remove(id);
+  @ApiBearerAuth()
+  @ApiParam({ name: 'id' })
+  // TODO: access Guard
+  remove(@ProjectParam() project: Project) {
+    return this.projectsService.remove(project.id);
   }
 }

@@ -1,0 +1,1 @@
+export const SUPPORTED_CHAIN_IDS = [31337, 1, 137, 43114, 42161, 10];

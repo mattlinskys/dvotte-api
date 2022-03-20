@@ -3,10 +3,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
-  NotFoundException,
 } from '@nestjs/common';
-import { plainToInstance } from 'class-transformer';
-import { ContractRepository } from 'contracts/contracts.repository';
 import { CreateProjectDto } from 'projects/dto/create-project.dto';
 import { UpdateProjectDto } from 'projects/dto/update-project.dto';
 import { Project } from 'projects/entities/project.entity';
@@ -14,15 +11,9 @@ import { ProjectRepository } from 'projects/projects.repository';
 
 @Injectable()
 export class ProjectsService {
-  constructor(
-    private readonly projectRepository: ProjectRepository,
-    private readonly contractRepository: ContractRepository,
-  ) {}
+  constructor(private readonly projectRepository: ProjectRepository) {}
 
-  async create(
-    { contractIds, ...props }: CreateProjectDto,
-    ownerAddress: string,
-  ) {
+  async create(props: CreateProjectDto, ownerAddress: string) {
     if (await this.existsBySlug(props.slug)) {
       throw new ConflictException();
     }
@@ -30,14 +21,6 @@ export class ProjectsService {
     const project = new Project();
     Object.assign(project, props);
     project.ownerAddress = ownerAddress;
-
-    project.contracts.add(
-      ...contractIds.map((id) => this.contractRepository.getReference(id)),
-    );
-    await project.contracts.loadItems();
-    if (!project.contracts.isInitialized(true)) {
-      throw new BadRequestException();
-    }
 
     await this.projectRepository.persistAndFlush(project);
     return project;
@@ -57,19 +40,18 @@ export class ProjectsService {
     return !!(await this.findBySlug(slug, { fields: [] }));
   }
 
-  async update(id: string, updateProjectDto: UpdateProjectDto) {
-    const project = await this.findOne(id, { populate: ['contracts'] });
-    if (!project) {
-      throw new NotFoundException();
-    }
-
+  async update(project: Project, updateProjectDto: UpdateProjectDto) {
     this.projectRepository.assign(project, updateProjectDto);
     await this.projectRepository.persistAndFlush(project);
 
     return project;
   }
 
-  uploadBanner(id: string, file: Express.Multer.File) {}
+  uploadBanner(project: Project, file: Express.Multer.File) {
+    // TODO: Upload file
+    // if (project.bannerUrl) {
+    // }
+  }
 
   async remove(id: string) {
     await this.projectRepository.removeAndFlush(

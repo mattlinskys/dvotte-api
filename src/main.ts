@@ -25,6 +25,10 @@ async function bootstrap() {
     }),
   );
 
+  if (configService.get('NODE_ENV') !== 'production') {
+    app.enableCors();
+  }
+
   SwaggerModule.setup(
     'docs',
     app,

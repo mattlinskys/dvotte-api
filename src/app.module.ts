@@ -4,7 +4,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ProjectsModule } from 'projects/projects.module';
 import { validate } from 'env.validation';
 import { AuthModule } from 'auth/auth.module';
-import { ContractsModule } from './contracts/contracts.module';
 
 import mongoConfig from 'config/mongo.config';
 import redisConfig from 'config/redis.config';
@@ -19,7 +18,7 @@ import authConfig from 'config/auth.config';
     }),
     MikroOrmModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
-        entities: ['./dist/projects/entities', './dist/contracts/entities'],
+        entities: ['./dist/projects/entities'],
         type: 'mongo',
         dbName: configService.get('mongo.dbName'),
         clientUrl: configService.get('mongo.url'),
@@ -30,7 +29,6 @@ import authConfig from 'config/auth.config';
     }),
     ProjectsModule,
     AuthModule,
-    ContractsModule,
   ],
 })
 export class AppModule implements NestModule {

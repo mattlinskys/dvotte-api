@@ -23,7 +23,7 @@ export class AuthService {
   signNonceTokenForAddress(address: string) {
     const payload: NonceTokenPayload = {
       address,
-      nonce: this.getNonce(),
+      nonce: `Welcome to DVotte, nonce: ${this.getNonce()}`,
     };
 
     return this.jwtService.signAsync(payload, {
@@ -50,7 +50,7 @@ export class AuthService {
     };
     return this.jwtService.signAsync(payload, {
       secret: this.accessJwtSecret,
-      expiresIn: '7d',
+      expiresIn: '1d',
     });
   }
 

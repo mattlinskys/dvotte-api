@@ -1,14 +1,42 @@
 import { Unique } from '@mikro-orm/core';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   ArrayNotEmpty,
   IsArray,
+  IsEnum,
+  IsEthereumAddress,
   IsHexColor,
   IsOptional,
   IsString,
+  IsUrl,
   Matches,
   MaxLength,
+  IsIn,
 } from 'class-validator';
+import { SUPPORTED_CHAIN_IDS } from 'constants/chains.constants';
+import { SocialType } from 'projects/enums/socialType.enum';
+
+class ContractDto {
+  @ApiProperty()
+  @IsEthereumAddress()
+  address: string;
+
+  @ApiProperty()
+  @IsIn(SUPPORTED_CHAIN_IDS)
+  chainId: number;
+}
+
+class SocialDto {
+  @ApiProperty({ enum: SocialType })
+  @IsEnum(SocialType)
+  type: SocialType;
+
+  @ApiProperty()
+  @IsUrl()
+  @MaxLength(400)
+  url: string;
+}
 
 export class CreateProjectDto {
   @ApiProperty()
@@ -24,9 +52,10 @@ export class CreateProjectDto {
   @ApiProperty()
   @IsArray()
   @ArrayNotEmpty()
-  @Unique()
-  @IsString({ each: true })
-  contractIds: string[];
+  @Type(() => ContractDto)
+  @MaxLength(SUPPORTED_CHAIN_IDS.length)
+  @Unique<ContractDto>({ properties: 'chainId' })
+  contracts: ContractDto[];
 
   @ApiProperty()
   @IsHexColor()
@@ -43,4 +72,10 @@ export class CreateProjectDto {
   @IsString()
   @MaxLength(5_000)
   content?: string;
+
+  @ApiProperty({ type: () => SocialDto })
+  @IsArray()
+  @Type(() => SocialDto)
+  @MaxLength(Object.keys(SocialType).length)
+  socials: SocialDto[];
 }
