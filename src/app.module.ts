@@ -14,11 +14,12 @@ import mongoConfig from 'config/mongo.config';
 import redisConfig from 'config/redis.config';
 import authConfig from 'config/auth.config';
 import awsConfig from 'config/aws.config';
+import appConfig from 'config/app.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      load: [mongoConfig, redisConfig, authConfig, awsConfig],
+      load: [mongoConfig, redisConfig, authConfig, awsConfig, appConfig],
       validate,
       isGlobal: true,
     }),

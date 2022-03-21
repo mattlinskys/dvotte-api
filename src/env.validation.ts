@@ -50,6 +50,9 @@ class EnvironmentVariables {
 
   @IsString()
   AWS_STATIC_FILES_BUCKET: string;
+
+  @IsString()
+  MAX_PROJECTS_PER_ADDRESS: string;
 }
 
 export const validate = (config: Record<string, unknown>) => {

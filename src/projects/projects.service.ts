@@ -1,5 +1,5 @@
-import { FindOneOptions } from '@mikro-orm/core';
-import { ConflictException, Injectable, OnModuleInit } from '@nestjs/common';
+import { CountOptions, FindOneOptions, FindOptions } from '@mikro-orm/core';
+import { ConflictException, Injectable } from '@nestjs/common';
 import path from 'path';
 import mime from 'mime';
 import { CreateProjectDto } from 'projects/dto/create-project.dto';
@@ -40,13 +40,19 @@ export class ProjectsService {
     return project;
   }
 
-  findMany() {}
+  findByOwnerAddress(ownerAddress: string, options?: FindOptions<Project>) {
+    return this.projectRepository.find({ ownerAddress }, options);
+  }
 
-  findOne(id: string, options?: FindOneOptions<Project, 'contracts'>) {
+  countByOwnerAddress(ownerAddress: string, options?: CountOptions<Project>) {
+    return this.projectRepository.count({ ownerAddress }, options);
+  }
+
+  findOne(id: string, options?: FindOneOptions<Project>) {
     return this.projectRepository.findOne(id, options);
   }
 
-  findBySlug(slug: string, options?: FindOneOptions<Project, 'contracts'>) {
+  findBySlug(slug: string, options?: FindOneOptions<Project>) {
     return this.projectRepository.findOne({ slug }, options);
   }
 
@@ -61,7 +67,6 @@ export class ProjectsService {
     return project;
   }
 
-  // TODO: Bull queue - remove old file
   async uploadBanner(project: Project, file: Express.Multer.File) {
     const oldLocation = project.bannerUrl;
     const location = await this.s3ManagerService.uploadFile({
