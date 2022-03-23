@@ -16,7 +16,14 @@ import { ProjectsService } from 'projects/projects.service';
 import { CreateProjectDto } from 'projects/dto/create-project.dto';
 import { UpdateProjectDto } from 'projects/dto/update-project.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiParam } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiHeader,
+  ApiParam,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { AuthGuard } from 'auth/guards/auth.guard';
 import { AccessPayload } from 'auth/decorators/accessPayload.decorator';
 import { AccessTokenPayload } from 'auth/auth.types';
@@ -25,6 +32,10 @@ import { Project } from 'projects/entities/project.entity';
 import { mimetypesFileFilter } from 'utils/multer.utils';
 import { ProjectsLimitGuard } from 'projects/guards/projectsLimit.guard';
 import { ProjectOwnerGuard } from 'projects/guards/projectOwner.guard';
+import { plainToInstance } from 'class-transformer';
+import { MultiResults } from 'types/multiResults.type';
+import { Devote } from 'projects/entities/devote.entity';
+import { DevoteDto } from 'projects/dto/devote.dto';
 
 @Controller('projects')
 export class ProjectsController {
@@ -32,6 +43,7 @@ export class ProjectsController {
 
   @Post()
   @ApiBearerAuth()
+  @ApiHeader({ name: 'captcha-token' })
   @UseGuards(AuthGuard, ProjectsLimitGuard)
   create(
     @Body() createProjectDto: CreateProjectDto,
@@ -118,5 +130,39 @@ export class ProjectsController {
   @UseGuards(AuthGuard, ProjectOwnerGuard)
   remove(@ProjectParam() project: Project) {
     return this.projectsService.remove(project);
+  }
+
+  @Get(':id/devotes')
+  @ApiResponse({ type: () => typeof new MultiResults<Devote>() })
+  @ApiParam({ name: 'id' })
+  @ApiParam({ name: 'offest', type: 'number' })
+  @ApiParam({ name: 'limit', type: 'number' })
+  async findDevotes(
+    @ProjectParam() project: Project,
+    // TODO: Validation
+    @Param('offset') offset: number,
+    @Param('limit') limit: number,
+  ) {
+    const [devotes, total] = await this.projectsService.findDevotes(
+      project,
+      offset,
+      limit,
+    );
+    return plainToInstance(MultiResults, {
+      devotes,
+      total,
+    });
+  }
+
+  @Post(':id/devotes')
+  @ApiBearerAuth()
+  @ApiParam({ name: 'id' })
+  @UseGuards(AuthGuard)
+  devote(
+    @ProjectParam() project: Project,
+    @AccessPayload() { address }: AccessTokenPayload,
+    @Body() devoteDto: DevoteDto,
+  ) {
+    return this.projectsService.createDevote(project, address, devoteDto);
   }
 }

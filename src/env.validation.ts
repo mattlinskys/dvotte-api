@@ -53,6 +53,12 @@ class EnvironmentVariables {
 
   @IsString()
   MAX_PROJECTS_PER_ADDRESS: string;
+
+  @IsString()
+  HCAPTCHA_SITEKEY: string;
+
+  @IsString()
+  HCAPTCHA_SECRET: string;
 }
 
 export const validate = (config: Record<string, unknown>) => {

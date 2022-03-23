@@ -1,6 +1,6 @@
 import { Injectable, NestMiddleware, NotFoundException } from '@nestjs/common';
 import type { NextFunction, Request } from 'express';
-import { ProjectRepository } from 'projects/projects.repository';
+import { ProjectRepository } from 'projects/repositories/projects.repository';
 
 @Injectable()
 export class ProjectMiddleware implements NestMiddleware {

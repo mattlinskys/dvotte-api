@@ -1,11 +1,15 @@
 import { CountOptions, FindOneOptions, FindOptions } from '@mikro-orm/core';
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import path from 'path';
 import mime from 'mime';
 import { CreateProjectDto } from 'projects/dto/create-project.dto';
 import { UpdateProjectDto } from 'projects/dto/update-project.dto';
 import { Project } from 'projects/entities/project.entity';
-import { ProjectRepository } from 'projects/projects.repository';
+import { ProjectRepository } from 'projects/repositories/projects.repository';
 import { S3ManagerService } from 's3-manager/s3-manager.service';
 import { ConfigService } from '@nestjs/config';
 import { createReadStream } from 'fs';
@@ -16,13 +20,19 @@ import {
   CLEANER_QUEUE_NAME,
   DELETE_S3_FILE_JOB_NAME,
 } from 'cleaner/cleaner.constants';
+import { DevoteRepository } from 'projects/repositories/devote.repository';
+import { DevoteDto } from 'projects/dto/devote.dto';
+import { RpcProviderService } from 'rpc-provider/rpc-provider.service';
+import { Devote } from 'projects/entities/devote.entity';
 
 @Injectable()
 export class ProjectsService {
   constructor(
     private readonly configService: ConfigService,
     private readonly projectRepository: ProjectRepository,
+    private readonly devoteReporsitory: DevoteRepository,
     private readonly s3ManagerService: S3ManagerService,
+    private readonly rpcProviderService: RpcProviderService,
     @InjectQueue(CLEANER_QUEUE_NAME)
     private readonly cleanerQueue: Queue,
   ) {}
@@ -101,5 +111,33 @@ export class ProjectsService {
     await this.projectRepository.removeAndFlush(
       this.projectRepository.getReference(project.id),
     );
+  }
+
+  findDevotes(project: string | Project, offset: number, limit: number) {
+    return this.devoteReporsitory.findAndCount(
+      {
+        project,
+      },
+      { offset, limit },
+    );
+  }
+
+  async createDevote(project: Project, from: string, devoteDto: DevoteDto) {
+    const transaction = await this.rpcProviderService
+      .getProvider(devoteDto.contract.chainId)
+      .getTransaction(devoteDto.transactionHash);
+    if (transaction.from !== from) {
+      throw new ForbiddenException();
+    }
+
+    const devote = new Devote();
+    Object.assign(devote, devoteDto);
+    devote.value = transaction.value.toString();
+    devote.from = from;
+    devote.project = project;
+
+    await this.devoteReporsitory.persistAndFlush(devote);
+
+    return devote;
   }
 }

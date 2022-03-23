@@ -12,18 +12,8 @@ import {
 import { ObjectId } from '@mikro-orm/mongodb';
 import { Expose } from 'class-transformer';
 import { SocialType } from 'projects/enums/socialType.enum';
-import { ProjectRepository } from 'projects/projects.repository';
-
-@Embeddable()
-export class Contract {
-  @Expose()
-  @Property()
-  address: string;
-
-  @Expose()
-  @Property()
-  chainId: number;
-}
+import { ProjectRepository } from 'projects/repositories/projects.repository';
+import { Contract } from './contract.entity';
 
 @Embeddable()
 export class Social {

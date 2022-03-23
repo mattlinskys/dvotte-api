@@ -5,27 +5,16 @@ import {
   ArrayNotEmpty,
   IsArray,
   IsEnum,
-  IsEthereumAddress,
   IsHexColor,
   IsOptional,
   IsString,
   IsUrl,
   Matches,
   MaxLength,
-  IsIn,
 } from 'class-validator';
 import { SUPPORTED_CHAIN_IDS } from 'constants/chains.constants';
+import { ContractDto } from 'projects/dto/contract.dto';
 import { SocialType } from 'projects/enums/socialType.enum';
-
-class ContractDto {
-  @ApiProperty()
-  @IsEthereumAddress()
-  address: string;
-
-  @ApiProperty()
-  @IsIn(SUPPORTED_CHAIN_IDS)
-  chainId: number;
-}
 
 class SocialDto {
   @ApiProperty({ enum: SocialType })
@@ -70,7 +59,7 @@ export class CreateProjectDto {
   @ApiProperty()
   @IsOptional()
   @IsString()
-  @MaxLength(5_000)
+  @MaxLength(5000)
   content?: string;
 
   @ApiProperty({ type: () => SocialDto })
