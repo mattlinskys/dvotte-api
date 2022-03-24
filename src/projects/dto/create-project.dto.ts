@@ -2,11 +2,11 @@ import { Unique } from '@mikro-orm/core';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
+  ArrayMaxSize,
   ArrayNotEmpty,
   IsArray,
   IsEnum,
   IsHexColor,
-  IsOptional,
   IsString,
   IsUrl,
   Matches,
@@ -42,7 +42,7 @@ export class CreateProjectDto {
   @IsArray()
   @ArrayNotEmpty()
   @Type(() => ContractDto)
-  @MaxLength(SUPPORTED_CHAIN_IDS.length)
+  @ArrayMaxSize(SUPPORTED_CHAIN_IDS.length)
   @Unique<ContractDto>({ properties: 'chainId' })
   contracts: ContractDto[];
 
@@ -51,20 +51,18 @@ export class CreateProjectDto {
   color: string;
 
   @ApiProperty()
-  @IsOptional()
   @IsString()
   @MaxLength(300)
-  description?: string;
+  description: string;
 
   @ApiProperty()
-  @IsOptional()
   @IsString()
   @MaxLength(5000)
-  content?: string;
+  content: string;
 
   @ApiProperty({ type: () => SocialDto })
   @IsArray()
   @Type(() => SocialDto)
-  @MaxLength(Object.keys(SocialType).length)
+  @ArrayMaxSize(Object.keys(SocialType).length)
   socials: SocialDto[];
 }

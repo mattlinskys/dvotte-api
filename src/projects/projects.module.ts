@@ -42,6 +42,10 @@ export class ProjectsModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(ProjectMiddleware)
+      .exclude({
+        path: 'projects/:slug/slug',
+        method: RequestMethod.GET,
+      })
       .forRoutes(
         { path: 'projects/:id', method: RequestMethod.ALL },
         { path: 'projects/:id/*', method: RequestMethod.ALL },
