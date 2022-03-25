@@ -149,7 +149,7 @@ export class ProjectsController {
       limit,
     );
     return plainToInstance(MultiResults, {
-      devotes,
+      results: devotes,
       total,
     });
   }

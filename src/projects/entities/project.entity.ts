@@ -10,7 +10,7 @@ import {
   Unique,
 } from '@mikro-orm/core';
 import { ObjectId } from '@mikro-orm/mongodb';
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { SocialType } from 'projects/enums/socialType.enum';
 import { ProjectRepository } from 'projects/repositories/projects.repository';
 import { Contract } from './contract.entity';
@@ -51,6 +51,7 @@ export class Project {
   ownerAddress: string;
 
   @Expose()
+  @Type(() => Contract)
   @Embedded(() => Contract, { array: true })
   contracts: Contract[] = [];
 

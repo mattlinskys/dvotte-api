@@ -1,4 +1,9 @@
+import { Expose } from 'class-transformer';
+
 export class MultiResults<T> {
+  @Expose()
   results: T[];
-  total: string;
+
+  @Expose()
+  total: number;
 }

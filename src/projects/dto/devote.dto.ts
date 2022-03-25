@@ -1,13 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsString, MaxLength } from 'class-validator';
-import { ContractDto } from 'projects/dto/contract.dto';
+import { IsIn, IsString, MaxLength } from 'class-validator';
+import { SUPPORTED_CHAIN_IDS } from 'constants/chains.constants';
 
 export class DevoteDto {
-  // TODO: Check ValidateNested
   @ApiProperty()
-  @Type(() => ContractDto)
-  contract: ContractDto;
+  @IsIn(SUPPORTED_CHAIN_IDS)
+  chainId: number;
 
   @ApiProperty()
   @IsString()

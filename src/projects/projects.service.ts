@@ -124,9 +124,15 @@ export class ProjectsService {
 
   async createDevote(project: Project, from: string, devoteDto: DevoteDto) {
     const transaction = await this.rpcProviderService
-      .getProvider(devoteDto.contract.chainId)
+      .getProvider(devoteDto.chainId)
       .getTransaction(devoteDto.transactionHash);
-    if (transaction.from !== from) {
+    if (
+      transaction.from !== from ||
+      !project.contracts.some(
+        ({ address, chainId }) =>
+          address === transaction.to && chainId === devoteDto.chainId,
+      )
+    ) {
       throw new ForbiddenException();
     }
 
