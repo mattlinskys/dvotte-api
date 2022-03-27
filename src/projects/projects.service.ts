@@ -20,10 +20,10 @@ import {
   CLEANER_QUEUE_NAME,
   DELETE_S3_FILE_JOB_NAME,
 } from 'cleaner/cleaner.constants';
-import { DevoteRepository } from 'projects/repositories/devote.repository';
-import { DevoteDto } from 'projects/dto/devote.dto';
+import { RegisterDevoteDto } from 'projects/dto/register-devote.dto';
 import { RpcProviderService } from 'rpc-provider/rpc-provider.service';
-import { Devote } from 'projects/entities/devote.entity';
+import { DevoteRepository } from 'devotes/repositories/devote.repository';
+import { Devote } from 'devotes/entities/devote.entity';
 
 @Injectable()
 export class ProjectsService {
@@ -81,12 +81,13 @@ export class ProjectsService {
     const oldLocation = project.bannerUrl;
     const location = await this.s3ManagerService.uploadFile({
       Key: path.join(
-        'banners',
+        'posters',
         `${project.id}_${Date.now()}.${mime.getExtension(file.mimetype)}`,
       ),
       Bucket: this.configService.get('aws.staticFilesBucket'),
       Body: createReadStream(file.path),
       ACL: 'public-read',
+      ContentType: file.mimetype,
     });
 
     project.bannerUrl = location;
@@ -113,31 +114,26 @@ export class ProjectsService {
     );
   }
 
-  findDevotes(project: string | Project, offset: number, limit: number) {
-    return this.devoteReporsitory.findAndCount(
-      {
-        project,
-      },
-      { offset, limit },
-    );
-  }
-
-  async createDevote(project: Project, from: string, devoteDto: DevoteDto) {
+  async registerDevote(
+    project: Project,
+    from: string,
+    registerDevoteDto: RegisterDevoteDto,
+  ) {
     const transaction = await this.rpcProviderService
-      .getProvider(devoteDto.chainId)
-      .getTransaction(devoteDto.transactionHash);
+      .getProvider(registerDevoteDto.chainId)
+      .getTransaction(registerDevoteDto.transactionHash);
     if (
       transaction.from !== from ||
       !project.contracts.some(
         ({ address, chainId }) =>
-          address === transaction.to && chainId === devoteDto.chainId,
+          address === transaction.to && chainId === registerDevoteDto.chainId,
       )
     ) {
       throw new ForbiddenException();
     }
 
     const devote = new Devote();
-    Object.assign(devote, devoteDto);
+    Object.assign(devote, registerDevoteDto);
     devote.value = transaction.value.toString();
     devote.from = from;
     devote.project = project;

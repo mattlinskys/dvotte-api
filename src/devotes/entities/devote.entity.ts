@@ -12,8 +12,8 @@ import {
 import { ObjectId } from '@mikro-orm/mongodb';
 import { Expose } from 'class-transformer';
 import { Project } from 'projects/entities/project.entity';
-import { DevoteRepository } from 'projects/repositories/devote.repository';
-import { Contract } from './contract.entity';
+import { DevoteRepository } from 'devotes/repositories/devote.repository';
+import { Contract } from 'entities/contract.entity';
 
 @Entity({ customRepository: () => DevoteRepository })
 export class Devote {
@@ -48,7 +48,7 @@ export class Devote {
 
   @Expose()
   @Property()
-  content: string;
+  note: string;
 
   @Expose()
   @Property()

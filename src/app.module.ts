@@ -11,6 +11,7 @@ import { BullModule } from '@nestjs/bull';
 import { CleanerConsumer } from 'cleaner/cleaner.consumer';
 import { CaptchaModule } from './captcha/captcha.module';
 import { RpcProviderModule } from './rpc-provider/rpc-provider.module';
+import { DevotesModule } from './devotes/devotes.module';
 
 import mongoConfig from 'config/mongo.config';
 import redisConfig from 'config/redis.config';
@@ -65,6 +66,7 @@ import appConfig from 'config/app.config';
     S3ManagerModule,
     CaptchaModule,
     RpcProviderModule,
+    DevotesModule,
   ],
   providers: [CleanerConsumer],
 })

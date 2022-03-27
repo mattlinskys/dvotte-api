@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsIn, IsString, MaxLength } from 'class-validator';
 import { SUPPORTED_CHAIN_IDS } from 'constants/chains.constants';
 
-export class DevoteDto {
+export class RegisterDevoteDto {
   @ApiProperty()
   @IsIn(SUPPORTED_CHAIN_IDS)
   chainId: number;
@@ -14,5 +14,5 @@ export class DevoteDto {
   @ApiProperty()
   @IsString()
   @MaxLength(300)
-  content: string;
+  note: string;
 }

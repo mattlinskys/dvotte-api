@@ -30,7 +30,7 @@ class SocialDto {
 export class CreateProjectDto {
   @ApiProperty()
   @IsString()
-  @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+  @Matches(/^\w+(?:-\w+)*$/)
   slug: string;
 
   @ApiProperty()

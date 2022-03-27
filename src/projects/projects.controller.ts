@@ -22,7 +22,6 @@ import {
   ApiConsumes,
   ApiHeader,
   ApiParam,
-  ApiResponse,
 } from '@nestjs/swagger';
 import { AuthGuard } from 'auth/guards/auth.guard';
 import { AccessPayload } from 'auth/decorators/accessPayload.decorator';
@@ -32,10 +31,7 @@ import { Project } from 'projects/entities/project.entity';
 import { mimetypesFileFilter } from 'utils/multer.utils';
 import { ProjectsLimitGuard } from 'projects/guards/projectsLimit.guard';
 import { ProjectOwnerGuard } from 'projects/guards/projectOwner.guard';
-import { plainToInstance } from 'class-transformer';
-import { MultiResults } from 'types/multiResults.type';
-import { Devote } from 'projects/entities/devote.entity';
-import { DevoteDto } from 'projects/dto/devote.dto';
+import { RegisterDevoteDto } from 'projects/dto/register-devote.dto';
 
 @Controller('projects')
 export class ProjectsController {
@@ -132,28 +128,6 @@ export class ProjectsController {
     return this.projectsService.remove(project);
   }
 
-  @Get(':id/devotes')
-  @ApiResponse({ type: () => typeof new MultiResults<Devote>() })
-  @ApiParam({ name: 'id' })
-  @ApiParam({ name: 'offest', type: 'number' })
-  @ApiParam({ name: 'limit', type: 'number' })
-  async findDevotes(
-    @ProjectParam() project: Project,
-    // TODO: Validation
-    @Param('offset') offset: number,
-    @Param('limit') limit: number,
-  ) {
-    const [devotes, total] = await this.projectsService.findDevotes(
-      project,
-      offset,
-      limit,
-    );
-    return plainToInstance(MultiResults, {
-      results: devotes,
-      total,
-    });
-  }
-
   @Post(':id/devotes')
   @ApiBearerAuth()
   @ApiParam({ name: 'id' })
@@ -161,8 +135,12 @@ export class ProjectsController {
   devote(
     @ProjectParam() project: Project,
     @AccessPayload() { address }: AccessTokenPayload,
-    @Body() devoteDto: DevoteDto,
+    @Body() registerDevoteDto: RegisterDevoteDto,
   ) {
-    return this.projectsService.createDevote(project, address, devoteDto);
+    return this.projectsService.registerDevote(
+      project,
+      address,
+      registerDevoteDto,
+    );
   }
 }

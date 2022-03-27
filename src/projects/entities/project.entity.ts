@@ -13,7 +13,7 @@ import { ObjectId } from '@mikro-orm/mongodb';
 import { Expose, Type } from 'class-transformer';
 import { SocialType } from 'projects/enums/socialType.enum';
 import { ProjectRepository } from 'projects/repositories/projects.repository';
-import { Contract } from './contract.entity';
+import { Contract } from 'entities/contract.entity';
 
 @Embeddable()
 export class Social {
