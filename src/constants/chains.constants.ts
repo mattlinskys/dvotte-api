@@ -86,4 +86,6 @@ export const SUPPORTED_CHAINS: Record<IChain['id'], IChain> = {
     ],
   },
 };
-export const SUPPORTED_CHAIN_IDS = Object.keys(SUPPORTED_CHAINS);
+export const SUPPORTED_CHAIN_IDS = Object.values(SUPPORTED_CHAINS).map(
+  ({ id }) => id,
+);

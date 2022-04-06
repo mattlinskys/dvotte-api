@@ -122,18 +122,17 @@ export class ProjectsService {
     const transaction = await this.rpcProviderService
       .getProvider(registerDevoteDto.chainId)
       .getTransaction(registerDevoteDto.transactionHash);
-    if (
-      transaction.from !== from ||
-      !project.contracts.some(
-        ({ address, chainId }) =>
-          address === transaction.to && chainId === registerDevoteDto.chainId,
-      )
-    ) {
+    const contract = project.contracts.find(
+      ({ address, chainId }) =>
+        address === transaction.to && chainId === registerDevoteDto.chainId,
+    );
+    if (transaction.from !== from || !contract) {
       throw new ForbiddenException();
     }
 
     const devote = new Devote();
     Object.assign(devote, registerDevoteDto);
+    devote.contract = contract;
     devote.value = transaction.value.toString();
     devote.from = from;
     devote.project = project;

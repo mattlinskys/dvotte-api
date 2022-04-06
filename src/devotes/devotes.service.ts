@@ -17,7 +17,11 @@ export class DevotesService {
     return this.devoteReporsitory.findAndCount(
       {
         project,
-        contract: { address, chainId },
+        ...(address && chainId
+          ? {
+              contract: { address, chainId },
+            }
+          : {}),
       },
       { offset, limit },
     );

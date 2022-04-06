@@ -52,7 +52,11 @@ import appConfig from 'config/app.config';
     }),
     MikroOrmModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
-        entities: ['./dist/projects/entities'],
+        entities: [
+          './dist/entities',
+          './dist/projects/entities',
+          './dist/devotes/entities',
+        ],
         type: 'mongo',
         dbName: configService.get('mongo.dbName'),
         clientUrl: configService.get('mongo.url'),

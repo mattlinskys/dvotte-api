@@ -35,6 +35,7 @@ export class Devote {
   @Embedded(() => Contract)
   contract: Contract;
 
+  @Expose()
   @ManyToOne(() => Project)
   project: Project;
 
